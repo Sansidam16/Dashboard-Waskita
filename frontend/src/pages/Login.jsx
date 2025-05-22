@@ -5,6 +5,7 @@ export default function Login() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -14,6 +15,7 @@ export default function Login() {
       setError('Email/username dan password wajib diisi!');
       return;
     }
+    setLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -31,6 +33,7 @@ export default function Login() {
     } catch (err) {
       setError('Terjadi kesalahan pada server');
     }
+    setLoading(false);
   };
 
   return (
@@ -42,14 +45,22 @@ export default function Login() {
         <form className="w-full" onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 mb-1">Email atau Username</label>
-            <input type="text" className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" value={identifier} onChange={e => setIdentifier(e.target.value)} required placeholder="Masukkan email atau username" />
+            <input type="text" className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 ${error ? 'border-red-500' : ''}`} value={identifier} onChange={e => setIdentifier(e.target.value)} required placeholder="Masukkan email atau username" />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 mb-1">Password</label>
-            <input type="password" className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" value={password} onChange={e => setPassword(e.target.value)} required />
+            <input type="password" className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 ${error ? 'border-red-500' : ''}`} value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
           {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Login</button>
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition flex items-center justify-center" disabled={loading}>
+            {loading && (
+              <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+            )}
+            {loading ? 'Memproses...' : 'Login'}
+          </button>
         </form>
         <div className="flex gap-2 mt-4">
           <button onClick={() => navigate('/register')} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2">
