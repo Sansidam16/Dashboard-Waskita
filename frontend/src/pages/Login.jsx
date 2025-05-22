@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -10,11 +10,15 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!identifier || !password) {
+      setError('Email/username dan password wajib diisi!');
+      return;
+    }
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ identifier, password }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -37,8 +41,8 @@ export default function Login() {
         <p className="text-gray-500 mb-6 text-center text-sm">Deteksi Cepat Konten Intoleransi, Radikalisme, dan Terorisme di Ruang Siber</p>
         <form className="w-full" onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Email</label>
-            <input type="email" className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" value={email} onChange={e => setEmail(e.target.value)} required />
+            <label className="block text-gray-700 mb-1">Email atau Username</label>
+            <input type="text" className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" value={identifier} onChange={e => setIdentifier(e.target.value)} required placeholder="Masukkan email atau username" />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 mb-1">Password</label>
