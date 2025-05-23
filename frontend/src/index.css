@@ -2,7 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: theme('colors.background');
-  color: theme('colors.text');
-}
+
