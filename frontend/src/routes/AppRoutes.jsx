@@ -1,6 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DatasetPage from '../pages/DatasetPage';
+import DatasetCrawlPage from '../pages/DatasetCrawlPage';
+import DatasetUploadPage from '../pages/DatasetUploadPage';
+import DatasetSavedPage from '../pages/DatasetSavedPage';
 import LabelingPage from '../pages/LabelingPage';
 import DashboardSummary from '../components/DashboardSummary';
 import Login from '../pages/Login';
@@ -15,7 +18,10 @@ const AppRoutes = () => (
     <Route path="/register" element={<Register />} />
     <Route path="/" element={<AuthSwitch />} />
     <Route path="/dashboard" element={<ProtectedRoute><DashboardSummary /></ProtectedRoute>} />
-    <Route path="/dataset" element={<ProtectedRoute><DatasetPage /></ProtectedRoute>} />
+    <Route path="/dataset" element={<Navigate to="/dataset/crawl" />} />
+    <Route path="/dataset/crawl" element={<ProtectedRoute><DatasetCrawlPage /></ProtectedRoute>} />
+    <Route path="/dataset/upload" element={<ProtectedRoute><DatasetUploadPage /></ProtectedRoute>} />
+    <Route path="/dataset/saved" element={<ProtectedRoute><DatasetSavedPage /></ProtectedRoute>} />
     <Route path="/labeling" element={<ProtectedRoute><LabelingPage /></ProtectedRoute>} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
