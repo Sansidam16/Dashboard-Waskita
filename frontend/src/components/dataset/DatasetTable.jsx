@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DatasetActions from './DatasetActions';
 import DatasetFormModal from './DatasetFormModal';
 import Modal from '../shared/Modal';
-import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash, FaUserShield } from 'react-icons/fa';
 
 const PAGE_SIZE = 10;
 

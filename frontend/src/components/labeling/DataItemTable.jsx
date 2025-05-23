@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Button from '../shared/Button';
 import DataItemFormModal from './DataItemFormModal';
 import Modal from '../shared/Modal';
+import { FaUserShield } from 'react-icons/fa';
 
 const DataItemTable = ({ datasetId, onSelect, showToast }) => {
   const [items, setItems] = useState([]);
@@ -69,7 +70,16 @@ const DataItemTable = ({ datasetId, onSelect, showToast }) => {
           ) : (
             items.map(item => (
               <tr key={item.id} className="border-b">
-                <td className="px-4 py-2 cursor-pointer hover:underline" onClick={() => onSelect(item)}>{item.value}</td>
+                <td className="px-4 py-2 cursor-pointer hover:underline" onClick={() => onSelect(item)}>{(() => {
+  const cleanUsername = (item.username || '').replace(/^@/, '').toLowerCase();
+  const loginUsername = (localStorage.getItem('username') || '').toLowerCase();
+  return cleanUsername === loginUsername ? (
+    <span className="inline-flex items-center gap-1">
+      {item.username}
+      <span className="text-teal-600 align-middle hover:scale-110 hover:drop-shadow transition-transform ml-1" title="User Aktif"><FaUserShield /></span>
+    </span>
+  ) : item.username;
+})()}</td>
                 <td className="px-4 py-2">
                   <Button color="accent" size="sm" onClick={() => handleEdit(item)}>Edit</Button>{' '}
                   <Button color="secondary" size="sm" onClick={() => handleDelete(item)}>Hapus</Button>

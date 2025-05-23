@@ -11,6 +11,8 @@ import Register from '../pages/Register';
 import ProtectedRoute from './ProtectedRoute';
 import LandingPage from '../pages/LandingPage';
 import AuthSwitch from './AuthSwitch';
+import AdminSettingsPage from '../pages/AdminSettingsPage';
+import AdminRoute from '../components/AdminRoute';
 
 const AppRoutes = () => (
   <Routes>
@@ -23,6 +25,7 @@ const AppRoutes = () => (
     <Route path="/dataset/upload" element={<ProtectedRoute><DatasetUploadPage /></ProtectedRoute>} />
     <Route path="/dataset/saved" element={<ProtectedRoute><DatasetSavedPage /></ProtectedRoute>} />
     <Route path="/labeling" element={<ProtectedRoute><LabelingPage /></ProtectedRoute>} />
+    <Route path="/admin/settings" element={<AdminRoute><AdminSettingsPage /></AdminRoute>} />
     <Route path="*" element={<Navigate to="/dashboard" />} />
   </Routes>
 );

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Login() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -26,9 +27,11 @@ export default function Login() {
       if (res.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
-        navigate('/dashboard'); // Redirect ke dashboard utama
+        localStorage.setItem('email', data.email);
+        window.location.href = '/dashboard'; // Reload penuh agar Sidebar fetch ulang status admin
       } else {
-        setError(data.message || 'Login gagal');
+        // Demi keamanan, jangan beri tahu mana yang salah
+        setError('Email atau Username dan Password Salah');
       }
     } catch (err) {
       setError('Terjadi kesalahan pada server');
@@ -49,7 +52,16 @@ export default function Login() {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 mb-1">Password</label>
-            <input type="password" className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 ${error ? 'border-red-500' : ''}`} value={password} onChange={e => setPassword(e.target.value)} required />
+            <div className="relative">
+              <input type={showPassword ? 'text' : 'password'} className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 ${error ? 'border-red-500' : ''}`} value={password} onChange={e => setPassword(e.target.value)} required />
+              <button type="button" tabIndex="-1" className="absolute right-2 top-2 text-gray-400 hover:text-gray-700" onClick={() => setShowPassword(v => !v)} aria-label="Toggle password visibility">
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.402-3.217 1.125-4.575M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.875 4.575A9.978 9.978 0 0022 9c0-5.523-4.477-10-10-10-.825 0-1.625.1-2.4.275" /></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm2.121-2.121A9.969 9.969 0 0122 12c0 5.523-4.477 10-10 10S2 17.523 2 12c0-2.21.895-4.21 2.343-5.657" /></svg>
+                )}
+              </button>
+            </div>
           </div>
           {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
           <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition flex items-center justify-center" disabled={loading}>

@@ -4,6 +4,7 @@ import datasetRoutes from './routes/datasetRoutes.js';
 import labelingRoutes from './routes/labelingRoutes.js';
 import dataItemController from './controllers/dataItemController.js';
 import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/dataset', datasetRoutes);
 app.use('/api/labeling', labelingRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 
 // DATA ITEM
 app.get('/api/data-item', dataItemController.getAllDataItems);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { FaUserShield } from 'react-icons/fa';
 
 const sidebarMenu = [
   { label: 'Dashboard', to: '/dashboard', icon: 'fas fa-tachometer-alt' },
@@ -20,6 +21,25 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const isDatasetActive = location.pathname.startsWith('/dataset');
   const [open, setOpen] = useState(isDatasetActive);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  React.useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return setIsAdmin(false);
+        const res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return setIsAdmin(false);
+        const data = await res.json();
+        setIsAdmin(!!data.isAdmin);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+    fetchMe();
+  }, []);
 
   // Sync open state with route
   React.useEffect(() => {
@@ -121,6 +141,21 @@ const Sidebar = () => {
               <span>Labelling</span>
             </NavLink>
           </li>
+        {/* Admin Setting */}
+        {isAdmin && (
+          <li>
+            <NavLink
+              to="/admin/settings"
+              className={({ isActive }) =>
+                `flex px-4 py-2 rounded transition-colors items-center gap-2 ${isActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`
+              }
+              end
+            >
+              <FaUserShield className="text-lg" />
+              <span>Admin Setting</span>
+            </NavLink>
+          </li>
+        )}
         </ul>
       </nav>
     </aside>

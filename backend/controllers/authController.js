@@ -42,6 +42,21 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// GET /api/auth/me
+export const getMe = async (req, res) => {
+  if (!req.user || !req.user.email) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const userQuery = await db.query('SELECT * FROM users WHERE email = $1', [req.user.email]);
+    if (userQuery.rows.length === 0) return res.status(404).json({ message: 'User not found' });
+    const user = userQuery.rows[0];
+    const isAdmin = user.is_admin === true;
+    res.json({ username: user.username, email: user.email, isAdmin });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// POST /api/auth/login
 export const loginUser = async (req, res) => {
   const { identifier, password } = req.body;
   if (!identifier || !password) {
@@ -60,7 +75,7 @@ export const loginUser = async (req, res) => {
     }
     // Generate token
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, username: user.username });
+    res.json({ token, username: user.username, email: user.email });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

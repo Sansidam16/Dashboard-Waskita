@@ -11,7 +11,7 @@ const DatasetCrawlPage = () => {
   };
   const handleError = (msg) => setToast({ message: msg, type: 'error' });
   return (
-    <div className="max-w-3xl mx-auto px-2 md:px-0 py-6">
+    <div className="w-full max-w-none mx-auto px-0 py-6">
       <h2 className="text-2xl font-bold text-primary mb-6">Crawling Data</h2>
       <DatasetCrawlForm onSuccess={handleSuccess} onError={handleError} />
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
