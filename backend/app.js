@@ -6,6 +6,7 @@ import dataItemController from './controllers/dataItemController.js';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import dotenv from 'dotenv';
+import crawlingRoutes from './routes/crawlingRoutes.js';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use('/api/dataset', datasetRoutes);
 app.use('/api/labeling', labelingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/crawling', crawlingRoutes);
 
 // DATA ITEM
 app.get('/api/data-item', dataItemController.getAllDataItems);

@@ -13,7 +13,7 @@ const DATA_TYPES = [
 
 const DatasetCrawlForm = ({ onSuccess, onError }) => {
   const [keyword, setKeyword] = useState('');
-  const [limit, setLimit] = useState(100);
+  const [limit, setLimit] = useState(10); // default 10 agar konsisten dengan backend
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [crawledData, setCrawledData] = useState(null);
@@ -34,10 +34,10 @@ const DatasetCrawlForm = ({ onSuccess, onError }) => {
     setSaveError('');
     setSaveSuccess('');
     try {
-      const res = await fetch('/api/dataset/crawl', {
+      const res = await fetch('/api/crawling/twitter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword, maxCount, bearerToken })
+        body: JSON.stringify({ keyword, limit })
       });
       let data;
       const text = await res.text();
@@ -47,7 +47,7 @@ const DatasetCrawlForm = ({ onSuccess, onError }) => {
         throw new Error('Response bukan JSON valid');
       }
       if (!res.ok) throw new Error(data.error || 'Gagal crawling data');
-      setCrawledData(data.data || data.result || data); // data hasil crawling
+      setCrawledData(data.data || data.tweets || data.result || data); // data hasil crawling
     } catch (err) {
       setError(err.message);
       setCrawledData(null);
@@ -65,10 +65,10 @@ const DatasetCrawlForm = ({ onSuccess, onError }) => {
     setSaveError('');
     setSaveSuccess('');
     try {
-      const res = await fetch('/api/dataset/apify-dataset-items', {
+      const res = await fetch('/api/crawling/twitter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ datasetId, apifyToken, keyword, limit })
+        body: JSON.stringify({ keyword, limit })
       });
       let data;
       const text = await res.text();
@@ -77,8 +77,8 @@ const DatasetCrawlForm = ({ onSuccess, onError }) => {
       } catch (e) {
         throw new Error('Response bukan JSON valid');
       }
-      if (!res.ok) throw new Error(data.error || 'Gagal crawling data dari Apify');
-      setCrawledData(data.data || data.result || data);
+      if (!res.ok) throw new Error(data.error || 'Gagal crawling data');
+      setCrawledData(data.data || data.tweets || data.result || data);
     } catch (err) {
       setError(err.message);
       setCrawledData(null);
