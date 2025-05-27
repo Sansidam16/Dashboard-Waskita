@@ -165,29 +165,28 @@ const DatasetCrawlForm = ({ onError }) => {
       )}
 
       {/* Form Filter */}
-      <div className="bg-white rounded-lg shadow p-4 mb-4">
-        <form onSubmit={handleCrawlApify} className="flex flex-col md:flex-row gap-4 items-end">
-          <div className="flex-1">
-            <label className="block font-semibold mb-1">Keyword</label>
+      <div className="bg-white rounded-lg shadow p-6 my-4 w-full max-w-5xl mx-auto">
+        <form className="flex flex-col md:flex-row items-center gap-4 md:gap-6 mb-4" onSubmit={handleCrawlApify}>
+          <div className="flex-1 w-full">
             <input
               type="text"
-              className="border px-2 py-1 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base shadow-sm"
               placeholder="Masukkan kata kunci"
               value={keyword}
               onChange={e => {
                 setKeyword(e.target.value);
                 setError('');
               }}
-              autoFocus
+              disabled={loading}
             />
           </div>
           <div>
-            <label className="block font-semibold mb-1">Limit</label>
             <input
               type="number"
               min={1}
               max={100}
-              className="border px-2 py-1 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-20 px-3 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-base shadow-sm text-center"
+              placeholder="Limit"
               value={limit}
               onChange={e => {
                 setLimit(Number(e.target.value));
@@ -212,66 +211,75 @@ const DatasetCrawlForm = ({ onError }) => {
               </>
             )}
           </button>
-          {/* Tombol Cari Baru hanya muncul jika sudah ada data crawling */}
         </form>
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-      </div>
 
-      {/* Semua blok data crawling di dalam satu parent div */}
-      <div>
-        {Array.isArray(crawledData) && crawledData.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-            <img src="/empty-state.svg" alt="Empty" className="w-32 mb-4" onError={e => {e.target.style.display='none'}} />
-            <div className="text-lg">Belum ada data crawling.<br />Silakan lakukan pencarian.</div>
-          </div>
+        {Array.isArray(crawledData) && crawledData.length > 0 && (
+          <React.Fragment>
+            <div className="w-full overflow-x-auto mb-4">
+              <MuiDatasetCrawlTable rows={crawledData} />
+            </div>
+            <div className="flex flex-row gap-2 mb-2">
+              <button
+                className="flex items-center gap-2 bg-gray-200 text-gray-700 px-6 py-2 rounded-full font-semibold text-base shadow hover:bg-gray-300 transition w-fit"
+                type="button"
+                onClick={() => {
+                  setKeyword("");
+                  setCrawledData(null);
+                  setError("");
+                  setSaveError("");
+                  setSaveSuccess("");
+                  setTimeout(() => {
+                    const input = document.querySelector('input[placeholder="Masukkan kata kunci"]');
+                    if (input) input.focus();
+                  }, 100);
+                }}
+              >
+                <FaSearch className="text-base" />
+                <span>Pencarian Baru</span>
+              </button>
+              <button
+                className="flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full font-semibold text-base shadow-md hover:bg-green-700 transition min-w-[180px] w-fit"
+                onClick={handleSave}
+                disabled={saveLoading || alreadySaved}
+              >
+                {saveLoading ? (
+                  <>
+                    <ImSpinner2 className="animate-spin text-lg" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaCheckCircle className="text-base" />
+                    <span>Simpan ke Database</span>
+                  </>
+                )}
+              </button>
+            </div>
+            {/* Catatan pengertian label tabel */}
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-xs md:text-sm max-w-2xl mt-4">
+              <div className="font-semibold mb-1 text-yellow-800">Catatan Pengertian Label Tabel:</div>
+              <ul className="list-disc pl-5 space-y-1 text-yellow-900">
+                <li><b>Username</b>: Nama pengguna Twitter/X.</li>
+                <li><b>Name</b>: Nama asli pemilik akun.</li>
+                <li><b>Followers</b>: Jumlah pengikut akun.</li>
+                <li><b>Following</b>: Jumlah akun yang diikuti.</li>
+                <li><b>Tweet Text</b>: Isi/konten tweet.</li>
+                <li><b>Tweet URL</b>: Link langsung ke tweet.</li>
+                <li><b>Verified</b>: Status verifikasi akun.</li>
+                <li><b>Likes</b>: Jumlah like pada tweet.</li>
+                <li><b>Replies</b>: Jumlah balasan ke tweet.</li>
+                <li><b>Retweets</b>: Jumlah retweet tweet.</li>
+                <li><b>Quote Tweets</b>: Jumlah tweet kutipan.</li>
+                <li><b>Language</b>: Bahasa tweet.</li>
+                <li><b>Bio</b>: Deskripsi singkat akun.</li>
+                <li><b>Profile Picture</b>: Foto profil akun.</li>
+                <li><b>Location</b>: Lokasi user (jika diisi).</li>
+              </ul>
+              <div className="mt-2 text-yellow-700">Jika ada label yang kurang jelas, silakan arahkan kursor ke header tabel untuk melihat tooltip penjelasan.</div>
+            </div>
+          </React.Fragment>
         )}
-        {crawledData && Array.isArray(crawledData) && crawledData.length > 0 && (
-        <div className="bg-white rounded-lg shadow p-6 my-4 flex flex-col gap-6">
-          <div className="w-full overflow-x-auto">
-            <MuiDatasetCrawlTable rows={crawledData} />
-          </div>
-          <button
-            className="flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full font-semibold text-base shadow-md hover:bg-green-700 transition min-w-[180px] self-end"
-            onClick={handleSave}
-            disabled={saveLoading || alreadySaved}
-          >
-            {saveLoading ? (
-              <>
-                <ImSpinner2 className="animate-spin text-lg" />
-                <span>Menyimpan...</span>
-              </>
-            ) : (
-              <>
-                <FaCheckCircle className="text-base" />
-                <span>Simpan ke Database</span>
-              </>
-            )}
-          </button>
-          {/* Catatan pengertian label tabel */}
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded text-xs md:text-sm max-w-2xl mt-4">
-            <div className="font-semibold mb-1 text-yellow-800">Catatan Pengertian Label Tabel:</div>
-            <ul className="list-disc pl-5 space-y-1 text-yellow-900">
-              <li><b>Username</b>: Nama pengguna Twitter/X.</li>
-              <li><b>Name</b>: Nama asli pemilik akun.</li>
-              <li><b>Followers</b>: Jumlah pengikut akun.</li>
-              <li><b>Following</b>: Jumlah akun yang diikuti.</li>
-              <li><b>Tweet Text</b>: Isi/konten tweet.</li>
-              <li><b>Tweet URL</b>: Link langsung ke tweet.</li>
-              <li><b>Verified</b>: Status verifikasi akun.</li>
-              <li><b>Likes</b>: Jumlah like pada tweet.</li>
-              <li><b>Replies</b>: Jumlah balasan ke tweet.</li>
-              <li><b>Retweets</b>: Jumlah retweet tweet.</li>
-              <li><b>Quote Tweets</b>: Jumlah tweet kutipan.</li>
-              <li><b>Language</b>: Bahasa tweet.</li>
-              <li><b>Bio</b>: Deskripsi singkat akun.</li>
-              <li><b>Profile Picture</b>: Foto profil akun.</li>
-              <li><b>Location</b>: Lokasi user (jika diisi).</li>
-              {/* Tambahkan label lain sesuai kebutuhan */}
-            </ul>
-            <div className="mt-2 text-yellow-700">Jika ada label yang kurang jelas, silakan arahkan kursor ke header tabel untuk melihat tooltip penjelasan.</div>
-          </div>
-        </div>
-      )}
       </div>
     </div>
   );
