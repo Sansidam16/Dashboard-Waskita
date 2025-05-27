@@ -1,6 +1,24 @@
 import React, { useState } from 'react';
+import EmptyState from '../components/shared/EmptyState';
+import Toast from '../components/shared/Toast';
+import TableContainer from '@mui/material/TableContainer';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import TableBody from '@mui/material/TableBody';
+
+// Fungsi untuk ekstrak username dari url tweet (support x.com & twitter.com)
+function extractUsernameFromUrl(url) {
+  // Contoh url: https://x.com/username/status/123456 atau https://twitter.com/username/status/123456
+  if (!url) return '';
+  const match = url.match(/(?:twitter|x)\.com\/([^\/]+)\//);
+  return match ? match[1] : '';
+}
 
 const CrawlingDataPage = () => {
+  const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tweets, setTweets] = useState([]);
   const [error, setError] = useState('');
@@ -9,7 +27,8 @@ const [limit, setLimit] = useState(10);
 
   const handleCrawl = async () => {
     if (!keyword.trim()) {
-      setError('Masukkan kata kunci pencarian!');
+      setToast({ message: 'Masukkan kata kunci pencarian!', type: 'error' });
+      setError('');
       return;
     }
     setLoading(true);
@@ -21,19 +40,19 @@ const [limit, setLimit] = useState(10);
         body: JSON.stringify({ keyword, limit })
       });
       const data = await res.json();
-      console.log('Response dari backend:', data);
+
       if (data.success) {
         if (Array.isArray(data.tweets) && data.tweets.length > 0) {
           setTweets(data.tweets);
         } else {
           setTweets([]);
-          setError('Tidak ada data hasil crawling.');
+          setToast({ message: 'Tidak ada data hasil crawling.', type: 'info' });
         }
       } else {
-        setError(data.error || 'Gagal mengambil data');
+        setToast({ message: data.error || 'Gagal mengambil data', type: 'error' });
       }
     } catch (err) {
-      setError('Terjadi kesalahan: ' + err.message);
+      setToast({ message: 'Terjadi kesalahan: ' + err.message, type: 'error' });
     }
     setLoading(false);
   };
@@ -45,7 +64,7 @@ const [limit, setLimit] = useState(10);
         <input
           className="border px-2 py-1 mr-2"
           type="text"
-          placeholder='Masukkan kata kunci, contoh: "jihad fisabilillah" OR #jihadfisabilillah'
+          placeholder='Masukkan kata kunci'
           value={keyword}
           onChange={e => setKeyword(e.target.value)}
         />
@@ -66,47 +85,138 @@ const [limit, setLimit] = useState(10);
           {loading ? 'Mengambil Data...' : 'Ambil Tweet Terkait'}
         </button>
       </div>
-      {error && <div className="mt-4 text-red-600">{error}</div>}
-      <TableContainer component={Paper}>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {(!loading && tweets.length === 0) ? (
+        <EmptyState message="Belum ada data hasil crawling. Silakan masukkan kata kunci dan ambil data." />
+      ) : (
+        <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="tweet table">
           <TableHead>
             <TableRow>
-              <TableCell>#</TableCell>
-              {/* Kolom dinamis sesuai urutan field actor */}
-              {tweets[0] && Object.keys(tweets[0]).map((key) => (
-                <TableCell key={key}>{key}</TableCell>
-              ))}
+              <TableCell>No</TableCell>
+              <TableCell>Tweet ID<br /><span style={{fontSize:10}}>id</span></TableCell>
+              <TableCell>Username<br /><span style={{fontSize:10}}>dari url</span></TableCell>
+              <TableCell>Mention<br /><span style={{fontSize:10}}>entities.user_mentions</span></TableCell>
+              <TableCell>Tweet URL<br /><span style={{fontSize:10}}>url</span></TableCell>
+              <TableCell>Content<br /><span style={{fontSize:10}}>text</span></TableCell>
+              <TableCell>Created At<br /><span style={{fontSize:10}}>createdAt</span></TableCell>
+              <TableCell>Profile Picture<br /><span style={{fontSize:10}}>author.profilePicture</span></TableCell>
+              <TableCell>Retweets<br /><span style={{fontSize:10}}>retweetCount</span></TableCell>
+              <TableCell>Replies<br /><span style={{fontSize:10}}>replyCount</span></TableCell>
+              <TableCell>Likes<br /><span style={{fontSize:10}}>likeCount</span></TableCell>
+              <TableCell>Quotes<br /><span style={{fontSize:10}}>quoteCount</span></TableCell>
+              <TableCell>Views<br /><span style={{fontSize:10}}>viewCount</span></TableCell>
+              <TableCell>Bookmarks<br /><span style={{fontSize:10}}>bookmarkCount</span></TableCell>
+              <TableCell>Source<br /><span style={{fontSize:10}}>source</span></TableCell>
+              <TableCell>Language<br /><span style={{fontSize:10}}>lang</span></TableCell>
+              <TableCell>Is Reply<br /><span style={{fontSize:10}}>isReply</span></TableCell>
+              <TableCell>Is Retweet<br /><span style={{fontSize:10}}>isRetweet</span></TableCell>
+              <TableCell>Is Quote<br /><span style={{fontSize:10}}>isQuote</span></TableCell>
+              <TableCell>Is Pinned<br /><span style={{fontSize:10}}>isPinned</span></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {tweets.map((row, idx) => (
-              <TableRow key={row.id || idx}>
-                <TableCell>{idx+1}</TableCell>
-                {Object.keys(row).map((key) => (
-                  <TableCell key={key}>
-                    {/* Render gambar profilePicture jika field author.profilePicture */}
-                    {key === 'author' && row.author?.profilePicture ? (
-                      <img src={row.author.profilePicture} alt="profile" width={32} style={{borderRadius:'50%'}} />
-                    ) : key === 'extendedEntities' && row.extendedEntities?.media && Array.isArray(row.extendedEntities.media) && row.extendedEntities.media.length > 0 ? (
-                      row.extendedEntities.media.map((media, mIdx) =>
-                        media.media_url_https ? (
-                          <img key={mIdx} src={media.media_url_https} alt="tweet-media" width={64} style={{marginRight:4, marginBottom:2}} />
-                        ) : null
-                      )
-                    ) : Array.isArray(row[key]) || (typeof row[key] === 'object' && row[key] !== null) ? (
-                      <pre style={{maxWidth:320, maxHeight:200, overflow:'auto', fontSize:10}}>{JSON.stringify(row[key], null, 2)}</pre>
-                    ) : (
-                      String(row[key])
-                    )}
+            {tweets.map((tweet, idx) => {
+              return (
+                <TableRow key={idx}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell>{tweet.id || '-'}</TableCell>
+                  <TableCell>{tweet.url ? extractUsernameFromUrl(tweet.url) : '-'}</TableCell>
+                  <TableCell>{extractMentionsFromText(tweet.text)}</TableCell>
+                  <TableCell>
+                    {tweet.url ? (
+                      <a href={tweet.url} target="_blank" rel="noopener noreferrer">{tweet.url}</a>
+                    ) : '-'}
                   </TableCell>
-                ))}
-              </TableRow>
-            ))}
+                  <ContentCell text={tweet.text ?? '-'} />
+                  <TableCell>{tweet.createdAt ?? '-'}</TableCell>
+                  <TableCell>{tweet.author && tweet.author.profilePicture ? (
+                    <img src={tweet.author.profilePicture} alt="profile" width={32} style={{borderRadius:'50%'}} />
+                  ) : (
+                    <img src="/default-profile.png" alt="profile-default" width={32} style={{borderRadius:'50%'}} />
+                  )}</TableCell>
+                  <TableCell>{tweet.retweetCount ?? 0}</TableCell>
+                  <TableCell>{tweet.replyCount ?? 0}</TableCell>
+                  <TableCell>{tweet.likeCount ?? 0}</TableCell>
+                  <TableCell>{tweet.quoteCount ?? 0}</TableCell>
+                  <TableCell>{tweet.viewCount ?? 0}</TableCell>
+                  <TableCell>{tweet.bookmarkCount ?? 0}</TableCell>
+                  <TableCell>{tweet.source || '-'}</TableCell>
+                  <TableCell>{tweet.lang || '-'}</TableCell>
+                  <TableCell>{tweet.isReply ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{tweet.isRetweet ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{tweet.isQuote ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>{tweet.isPinned ? 'Yes' : 'No'}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
+      )}
     </div>
   );
 };
+
+// Komponen untuk cell konten dengan dua baris, elipsis, popup modal, dan keamanan XSS
+import React, { useRef, useState, useEffect } from 'react';
+
+function ContentCell({ text }) {
+  const ref = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+  const [truncated, setTruncated] = useState(false);
+  useEffect(() => {
+    if (ref.current) {
+      setTruncated(ref.current.scrollHeight > ref.current.clientHeight + 1);
+    }
+  }, [text]);
+  return (
+    <>
+      <TableCell
+        ref={ref}
+        align="left"
+        style={{
+          maxWidth: 220,
+          minWidth: 120,
+          whiteSpace: 'pre-line',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          cursor: truncated ? 'pointer' : 'default',
+          verticalAlign: 'top',
+          fontSize: 13,
+        }}
+        title={truncated ? 'Klik untuk lihat selengkapnya' : undefined}
+        onClick={truncated ? () => setShowModal(true) : undefined}
+      >
+        {text}
+      </TableCell>
+      {showModal && (
+        <div
+          style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.4)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}}
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            style={{background:'#fff',padding:24,borderRadius:8,maxWidth:500,maxHeight:'70vh',overflowY:'auto',boxShadow:'0 4px 24px rgba(0,0,0,0.18)'}}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{marginBottom:16,fontWeight:'bold'}}>Full Content</div>
+            <div style={{whiteSpace:'pre-line',wordBreak:'break-word',fontSize:14}}>{text}</div>
+            <button style={{marginTop:18,padding:'6px 18px',background:'#2563eb',color:'#fff',border:'none',borderRadius:4,cursor:'pointer'}} onClick={()=>setShowModal(false)}>Tutup</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// Fungsi ekstrak mention dari text tweet
+function extractMentionsFromText(text) {
+  if (!text) return '-';
+  const mentions = text.match(/@([a-zA-Z0-9_]+)/g);
+  return mentions && mentions.length > 0 ? mentions.join(', ') : '-';
+}
 
 export default CrawlingDataPage;

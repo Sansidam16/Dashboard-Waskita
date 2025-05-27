@@ -1,7 +1,7 @@
 import React from 'react';
 import AppRoutes from './routes/AppRoutes';
 import { Route } from 'react-router-dom';
-import MainLayout from './components/layout/MainLayout';
+import DashboardLayout from './components/layout/DashboardLayout';
 import { useLocation } from 'react-router-dom';
 import DatasetPage from './pages/DatasetPage';
 import DatasetCrawlPage from './pages/DatasetCrawlPage';
@@ -55,16 +55,16 @@ function App() {
   if (noLayoutRoutes.includes(location.pathname)) {
     return <AppRoutes />;
   }
-  // Semua halaman lain pakai MainLayout
+  // Semua halaman lain pakai DashboardLayout
   return (
     <div className="bg-gray-100 min-h-screen">
-      <MainLayout>
+      <DashboardLayout>
         <AppRoutes>
           <Route path="/dataset" element={<DatasetPage />} />
           <Route path="/dataset/crawl" element={<DatasetCrawlPage />} />
           <Route path="/admin/settings" element={<AdminRoute><AdminSettingsPage /></AdminRoute>} />
         </AppRoutes>
-      </MainLayout>
+      </DashboardLayout>
     </div>
   );
 }

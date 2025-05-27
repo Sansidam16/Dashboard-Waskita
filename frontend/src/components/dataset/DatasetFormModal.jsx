@@ -40,7 +40,7 @@ const DatasetFormModal = ({ open, onClose, onSuccess, editData }) => {
       onClose();
     } catch (err) {
       setError(err.message);
-      if (onError) onError(err.message);
+
     } finally {
       setLoading(false);
     }

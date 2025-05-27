@@ -3,10 +3,9 @@ import DatasetCrawlForm from '../components/dataset/DatasetCrawlForm';
 import Toast from '../components/shared/Toast';
 
 const DatasetCrawlPage = () => {
-  const [refresh, setRefresh] = React.useState(false);
+
   const [toast, setToast] = React.useState(null);
   const handleSuccess = (msg) => {
-    setRefresh(r => !r);
     if (msg) setToast({ message: msg, type: 'success' });
   };
   const handleError = (msg) => setToast({ message: msg, type: 'error' });

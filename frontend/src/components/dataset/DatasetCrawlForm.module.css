@@ -1,0 +1,21 @@
+.content-ellipsis-black {
+  position: relative;
+}
+
+.content-ellipsis-black::after {
+  content: '...';
+  color: #111;
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  background: white;
+  pointer-events: none;
+  font-weight: bold;
+  font-size: 1.1em;
+  display: none;
+}
+
+/* Show ... only if text is truncated */
+.content-ellipsis-black[data-truncated="true"]::after {
+  display: inline;
+}

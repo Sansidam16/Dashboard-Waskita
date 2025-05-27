@@ -56,15 +56,33 @@ export const getMe = async (req, res) => {
   }
 };
 
+// Middleware untuk cek user login
+export function requireUser(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ message: 'User access only' });
+  }
+  next();
+}
+
+// Middleware untuk cek admin
+export function requireAdmin(req, res, next) {
+  if (!req.user || req.user.is_admin !== true) {
+    return res.status(403).json({ message: 'Admin access only' });
+  }
+  next();
+}
+
 // POST /api/auth/login
 export const loginUser = async (req, res) => {
-  const { identifier, password } = req.body;
-  if (!identifier || !password) {
+
+  // Konsisten: gunakan field username dan password
+  const { username, password } = req.body;
+  if (!username || !password) {
     return res.status(400).json({ message: 'Email/username dan password wajib diisi!' });
   }
   try {
-    // Gabungkan query: cari berdasarkan email atau username
-    const userQuery = await db.query('SELECT * FROM users WHERE email = $1 OR username = $1', [identifier]);
+    // Query: cari berdasarkan email atau username
+    const userQuery = await db.query('SELECT * FROM users WHERE email = $1 OR username = $1', [username]);
     if (userQuery.rows.length === 0) {
       return res.status(400).json({ message: 'Email atau username tidak ditemukan!' });
     }
@@ -73,9 +91,9 @@ export const loginUser = async (req, res) => {
     if (!valid) {
       return res.status(400).json({ message: 'Password salah!' });
     }
-    // Generate token
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, username: user.username, email: user.email });
+    // Generate token dengan is_admin
+    const token = jwt.sign({ id: user.id, email: user.email, is_admin: user.is_admin === true }, JWT_SECRET, { expiresIn: '1d' });
+    res.json({ token, username: user.username, email: user.email, is_admin: user.is_admin === true });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

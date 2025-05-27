@@ -1,0 +1,12 @@
+# Ignore environment variable files
+.env
+.env.*
+# Node modules
+node_modules/
+# Log files
+*.log
+# OS files
+.DS_Store
+Thumbs.db
+# Build artifacts
+dist/

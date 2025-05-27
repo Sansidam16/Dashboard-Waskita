@@ -1,21 +1,9 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { FaUserShield } from 'react-icons/fa';
 
-const sidebarMenu = [
-  { label: 'Dashboard', to: '/dashboard', icon: 'fas fa-tachometer-alt' },
-  {
-    label: 'Dataset',
-    icon: 'fas fa-database',
-    subMenu: [
-      { label: 'Crawling Data', to: '/dataset/crawl', icon: 'fas fa-search' },
-      { label: 'Unggah Data', to: '/dataset/upload', icon: 'fas fa-upload' },
-      { label: 'Data Saved', to: '/dataset/saved', icon: 'fas fa-database' }
-    ]
-  },
-  { label: 'Labelling', to: '/labeling', icon: 'fas fa-tags' }
-];
 
+
+// Sidebar utama dashboard: navigasi utama, menu collapse/expand, highlight aktif
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -56,102 +44,150 @@ const Sidebar = () => {
     }
   };
 
+  // Struktur sidebar: logo, menu utama, menu dataset (expand/collapse), labelling, admin setting
   return (
-    <aside className="bg-primary text-white w-64 min-h-screen flex flex-col shadow-lg">
-      <div className="p-6 flex flex-row items-center gap-3 text-2xl font-bold tracking-wide border-b border-secondary">
-        <img src="/logo.png" alt="Logo" className="w-12 h-12" />
-        <span className="uppercase">WASKITA</span>
-      </div>
+    <aside className="bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-800 w-64 min-h-screen flex flex-col">
+      <div className="p-6 flex flex-row items-center gap-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+  <img
+    src="/logo.png"
+    alt="Logo"
+    className="w-12 h-12 rounded-xl shadow-lg ring-2 ring-blue-700/30 bg-white dark:bg-transparent transition-all"
+  />
+  <span className="uppercase font-extrabold text-2xl tracking-wide text-primary dark:text-blue-200 transition-colors">
+    WASKITA
+  </span>
+</div>
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
-          {/* Dashboard */}
+          {/* Menu utama: Dashboard */}
           <li>
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `flex px-4 py-2 rounded transition-colors items-center gap-2 ${isActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`
-              }
-              end
-            >
-              <i className="fas fa-tachometer-alt text-lg"></i>
-              <span>Dashboard</span>
-            </NavLink>
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-semibold text-base selection:bg-blue-200 selection:text-black
+              ${isActive
+                ? 'bg-blue-700 dark:bg-blue-900 text-white shadow-md shadow-blue-800/20'
+                : 'bg-gray-100 text-black dark:text-slate-200 hover:bg-blue-800/60 hover:text-blue-200'}`
+            }
+            end
+          >
+            {({ isActive }) => (
+              <>
+                <span className="relative group">
+                  <i className={`fas fa-tachometer-alt text-lg ${isActive ? "text-blue-400" : "text-slate-500"}`}></i>
+                  <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 rounded bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-20">
+                    Dashboard
+                  </span>
+                </span>
+                <span>Dashboard</span>
+              </>
+            )}
+          </NavLink>
           </li>
 
-          {/* Dataset with Expand/Collapse */}
+          {/* Menu Dataset: Expand/Collapse, highlight submenu aktif */}
           <li>
             <button
-              className={`flex w-full px-4 py-2 rounded transition-colors items-center gap-2 focus:outline-none ${isDatasetActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`}
+              className={`flex w-full px-4 py-2 rounded-lg font-semibold transition-colors duration-200 items-center gap-2 focus:outline-none
+                ${isDatasetActive ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20' : 'bg-transparent text-black dark:text-slate-200 hover:bg-slate-800 hover:text-blue-200'}`}
               onClick={handleDatasetClick}
               aria-expanded={open}
             >
-              <i className="fas fa-database text-lg"></i>
+              <span className="relative group">
+                <i className={isDatasetActive ? "fas fa-database text-blue-400 text-lg" : "fas fa-database text-slate-500 text-lg"}></i>
+                <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 rounded bg-gray-800 dark:bg-gray-700 text-white dark:text-gray-100 text-xs opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-20">
+                  Dataset
+                </span>
+              </span>
               <span>Dataset</span>
               <i className={`fas fa-chevron-${open ? 'down' : 'right'} ml-auto text-xs`}></i>
             </button>
             {open && (
               <ul className="ml-8 mt-1 space-y-1">
                 <li>
-                  <NavLink
-                    to="/dataset/crawl"
-                    className={({ isActive }) =>
-                      `flex px-3 py-2 rounded items-center gap-2 text-sm ${isActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`
-                    }
-                  >
-                    <i className="fas fa-search"></i>
-                    Crawling Data
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/dataset/upload"
-                    className={({ isActive }) =>
-                      `flex px-3 py-2 rounded items-center gap-2 text-sm ${isActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`
-                    }
-                  >
-                    <i className="fas fa-upload"></i>
-                    Unggah Data
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    to="/dataset/saved"
-                    className={({ isActive }) =>
-                      `flex px-3 py-2 rounded items-center gap-2 text-sm ${isActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`
-                    }
-                  >
-                    <i className="fas fa-database"></i>
-                    Data Saved
-                  </NavLink>
+                <NavLink
+                  to="/dataset/crawl"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 text-sm font-semibold shadow selection:bg-blue-200 selection:text-black
+                    ${isActive
+                      ? 'bg-blue-700 dark:bg-blue-900 text-white shadow-md shadow-blue-800/20'
+                      : 'bg-gray-100 text-black dark:text-slate-200 hover:bg-blue-800/60 hover:text-blue-200'}`
+                  }
+                >
+                  <i className="fas fa-search text-lg"></i>
+                  Crawling Data
+                </NavLink>
+
+                <NavLink
+                  to="/dataset/upload"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 text-sm font-semibold shadow selection:bg-blue-200 selection:text-black
+                    ${isActive
+                      ? 'bg-blue-700 dark:bg-blue-900 text-white shadow-md shadow-blue-800/20'
+                      : 'bg-gray-100 text-black dark:text-slate-200 hover:bg-blue-800/60 hover:text-blue-200'}`
+                  }
+                >
+                  <i className="fas fa-upload text-lg"></i>
+                  Unggah Data
+                </NavLink>
+
+                <NavLink
+                  to="/dataset/saved"
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 text-sm font-semibold shadow selection:bg-blue-200 selection:text-black
+                    ${isActive
+                      ? 'bg-blue-700 dark:bg-blue-900 text-white shadow-md shadow-blue-800/20'
+                      : 'bg-gray-100 text-black dark:text-slate-200 hover:bg-blue-800/60 hover:text-blue-200'}`
+                  }
+                >
+                  <i className="fas fa-database text-lg"></i>
+                  Data Saved
+                </NavLink>
                 </li>
               </ul>
             )}
           </li>
 
-          {/* Labelling */}
+          {/* Menu Labelling */}
           <li>
             <NavLink
               to="/labeling"
               className={({ isActive }) =>
-                `flex px-4 py-2 rounded transition-colors items-center gap-2 ${isActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`
+                `flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-semibold text-base selection:bg-blue-200 selection:text-black
+                ${isActive
+                  ? 'bg-blue-700 dark:bg-blue-900 text-white shadow-md shadow-blue-800/20'
+                  : 'text-black dark:text-slate-200 hover:bg-gray-800 hover:text-blue-200'}`
               }
               end
             >
-              <i className="fas fa-tags text-lg"></i>
+              <span className="relative group">
+                <i className="fas fa-tags text-lg"></i>
+                <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 rounded bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-20">
+                  Labelling
+                </span>
+              </span>
               <span>Labelling</span>
             </NavLink>
           </li>
-        {/* Admin Setting */}
+        {/* Menu Admin Setting (khusus admin) */}
         {isAdmin && (
           <li>
             <NavLink
               to="/admin/settings"
               className={({ isActive }) =>
-                `flex px-4 py-2 rounded transition-colors items-center gap-2 ${isActive ? 'bg-accent text-white' : 'hover:bg-secondary'}`
+                `flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 font-semibold text-base selection:bg-blue-200 selection:text-black
+                ${isActive
+                  ? 'bg-blue-700 dark:bg-blue-900 text-white shadow-md shadow-blue-800/20'
+                  : 'text-black dark:text-slate-200 hover:bg-gray-800 hover:text-blue-200'}`
               }
               end
             >
-              <FaUserShield className="text-lg" />
+              <span className="relative group">
+                <i className="fas fa-user-cog text-lg"></i>
+                <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 rounded bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-20">
+                  Admin Setting
+                </span>
+              </span>
               <span>Admin Setting</span>
             </NavLink>
           </li>

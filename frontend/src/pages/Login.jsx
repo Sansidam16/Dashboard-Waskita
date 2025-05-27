@@ -16,22 +16,24 @@ export default function Login() {
       setError('Email/username dan password wajib diisi!');
       return;
     }
+    // Debug: cek nilai identifier dan password
+
     setLoading(true);
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, password }),
+        body: JSON.stringify({ username: identifier, password }),
       });
       const data = await res.json();
+
       if (res.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
         localStorage.setItem('email', data.email);
         window.location.href = '/dashboard'; // Reload penuh agar Sidebar fetch ulang status admin
       } else {
-        // Demi keamanan, jangan beri tahu mana yang salah
-        setError('Email atau Username dan Password Salah');
+        setError(data.message || 'Email atau Username dan Password Salah');
       }
     } catch (err) {
       setError('Terjadi kesalahan pada server');
@@ -64,7 +66,7 @@ export default function Login() {
             </div>
           </div>
           {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition flex items-center justify-center" disabled={loading}>
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg shadow-md hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2" disabled={loading}>
             {loading && (
               <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -74,12 +76,14 @@ export default function Login() {
             {loading ? 'Memproses...' : 'Login'}
           </button>
         </form>
-        <div className="flex gap-2 mt-4">
-          <button onClick={() => navigate('/register')} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2">
-  <i className="fas fa-user-plus"></i>
+        <button
+  onClick={() => navigate('/register')}
+  className="w-full mt-4 bg-green-600 text-white py-2 rounded-lg shadow-md hover:bg-green-700 transition font-semibold flex items-center justify-center gap-2"
+>
+  {/* Icon Register dari react-icons */}
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8zm6 8v-2a6 6 0 00-12 0v2m6-8v6m3-3h-6" /></svg>
   <span>Register</span>
 </button>
-        </div>
       </div>
     </div>
   );
